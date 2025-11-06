@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>Análisis de Tendencias de Ventas</h1>
+    
+    <!-- Resumen estadístico -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-bg-primary">
+                <div class="card-body">
+                    <h5 class="card-title">Período Analizado</h5>
+                    <p class="card-text fs-4">Últimos 30 días</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-bg-success">
+                <div class="card-body">
+                    <h5 class="card-title">Total Ventas</h5>
+                    <p class="card-text fs-4">{{ sales|length }} registros</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-bg-warning">
+                <div class="card-body">
+                    <h5 class="card-title">Volver</h5>
+                    <p class="card-text">
+                        <a href="{% url 'analytics:dashboard' %}" class="btn btn-light btn-sm">
+                            ← Dashboard Principal
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráfico de línea -->
+    <div class="row mb-5">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Tendencia de Ingresos Diarios</h3>
+                </div>
+                <div class="card-body">
+                    <canvas id="trendChart" height="80"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de datos -->
+    <div class="row">
+        <div class="col-md-12">
+            <h3>Detalle de Ventas</h3>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Categoría</th>
+                            <th>Monto</th>
+                            <th>Descripción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sale in sales %}
+                        <tr>
+                            <td>{{ sale.date|date:"d/m/Y" }}</td>
+                            <td>
+                                <span class="badge bg-primary">
+                                    {{ sale.get_category_display }}
+                                </span>
+                            </td>
+                            <td>€ {{ sale.amount|floatformat:2 }}</td>
+                            <td>{{ sale.description }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">
+                                No hay datos de ventas para mostrar
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Petición AJAX para obtener datos de tendencia
+document.addEventListener('DOMContentLoaded', function() {
+    const url = "{% url 'analytics:trend' %}?format=json";
+    
+    fetch(url)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            const ctx = document.getElementById('trendChart').getContext('2d');
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: data,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return '€' + context.parsed.y.toFixed(2);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'Fecha'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Monto (€)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return '€' + value;
+                                }
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error al cargar los datos:', error);
+            // Mostrar mensaje de error al usuario
+            const chartContainer = document.getElementById('trendChart').parentElement;
+            chartContainer.innerHTML = `
+                <div class="alert alert-danger" role="alert">
+                    <h4>Error al cargar los datos</h4>
+                    <p>${error.message}</p>
+                </div>
+            `;
+        });
+});
+</script>
+{% endblock %}

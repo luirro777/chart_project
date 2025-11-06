@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>Listado Completo de Ventas</h1>
+    
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <a href="{% url 'analytics:dashboard' %}" class="btn btn-primary">
+                ← Volver al Dashboard
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5>Registros de ventas</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Fecha</th>
+                            <th>Categoría</th>
+                            <th>Monto</th>
+                            <th>Descripción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sale in object_list %}
+                        <tr>
+                            <td>{{ sale.id }}</td>
+                            <td>{{ sale.date|date:"d/m/Y" }}</td>
+                            <td>
+                                <span class="badge bg-info">
+                                    {{ sale.get_category_display }}
+                                </span>
+                            </td>
+                            <td class="fw-bold text-success">
+                                € {{ sale.amount|floatformat:2 }}
+                            </td>
+                            <td>{{ sale.description }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-4">
+                                <i>No hay registros de ventas en la base de datos</i>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer text-muted">
+            Total: {{ object_list|length }} ventas registradas
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,55 @@
+# -------------------------------------------------------------------
+# Directorios/Archivos Generados por Python e Instalación Local
+# -------------------------------------------------------------------
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+/ve/
+/local/
+/media/
+
+# Archivos de caché de Django y archivos temporales
+*.sqlite3
+*.log
+*.pot
+*.mo
+*.prof
+*.pid
+*.sock
+.DS_Store # Mac OS
+
+# Directorios de pruebas/cobertura
+.pytest_cache/
+htmlcov/
+.coverage
+
+# -------------------------------------------------------------------
+# Configuraciones de Seguridad y Entorno (¡CRÍTICO!)
+# -------------------------------------------------------------------
+# ¡NUNCA subas archivos que contengan secretos!
+# La mayoría de los desarrolladores usan un archivo .env o settings_local.py
+.env
+.env.*
+settings_local.py
+
+# -------------------------------------------------------------------
+# Directorios de Archivos Estáticos y de Medios
+# -------------------------------------------------------------------
+# Los archivos de medios subidos por usuarios (uploads)
+# No deben estar en Git, se manejan en el servidor.
+/media/*
+
+# El directorio donde Django recolecta los archivos estáticos de todas las apps.
+# Se genera al ejecutar 'python manage.py collectstatic'.
+/static/
+
+# -------------------------------------------------------------------
+# IDEs y Editores Comunes (Ignorar archivos de configuración local)
+# -------------------------------------------------------------------
+.vscode/ # Configuración local de VS Code
+.idea/ # Directorios de PyCharm/IntelliJ
+*.swp    # Archivos de intercambio de Vim

@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>Dashboard de Ventas</h1>
+    
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Total Ventas</h5>
+                    <p class="card-text fs-3">{{ total_sales }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Ingresos Totales</h5>
+                    <p class="card-text fs-3">€ {{ total_revenue }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráfico de Barras -->
+    <div class="row mb-5">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Ventas por Categoría (Gráfico de Barras)</h3>
+                </div>
+                <div class="card-body">
+                    <canvas id="barChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráfico de Dona -->
+    <div class="row mb-5">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Distribución por Categoría (Dona)</h3>
+                </div>
+                <div class="card-body">
+                    <canvas id="doughnutChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Link a tendencias -->
+    <div class="text-center">
+        <a href="{% url 'analytics:trend' %}" class="btn btn-primary">
+            Ver Tendencias Temporales
+        </a>
+    </div>
+</div>
+
+<script>
+// Petición AJAX a nuestra API Django
+document.addEventListener('DOMContentLoaded', function() {
+    fetch("{% url 'analytics:sales-api' %}")
+        .then(response => response.json())
+        .then(data => {
+            // Gráfico de Barras
+            const barCtx = document.getElementById('barChart').getContext('2d');
+            new Chart(barCtx, {
+                type: 'bar',
+                data: data,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '€' + value;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Gráfico de Dona
+            const doughnutCtx = document.getElementById('doughnutChart').getContext('2d');
+            new Chart(doughnutCtx, {
+                type: 'doughnut',
+                data: data,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        }
+                    }
+                }
+            });
+        })
+        .catch(error => console.error('Error:', error));
+});
+</script>
+{% endblock %}
